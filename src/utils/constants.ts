@@ -1,0 +1,1 @@
+export const COUNT_QUESTION_OPTIONS = 4
