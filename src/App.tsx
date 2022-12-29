@@ -1,23 +1,23 @@
-import React, {useCallback, useState} from "react";
+import {useCallback, useState} from "react";
 import {BasicButton} from "./components/BasicButton/BasicButton";
 import {CustomModal} from "./components/CustomModal/CustomModal";
-import {AppContainer, Block} from "./components/styled-components/common";
-import {useAppDispatch, useAppSelector} from "./redux TK/store";
+import {AppContainer} from "./components/styled-components/AppContainer/AppContainer";
+import {useAppDispatch, useAppSelector} from "./redux_TK/store";
 import {Test} from "./components/Test/Test";
-import {startTest} from "./redux TK/questionsSlice";
+import {startTest} from "./redux_TK/questionsSlice";
+import {Block} from "./components/styled-components/Block/Block";
 
 
 function App() {
     const [isOpen, setIsOpen] = useState<boolean>(false)
 
-const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch()
     const questionStatus = useAppSelector(state => state.questions.status)
-
 
     const startTestHandler = () => {
         dispatch(startTest())
     }
-    const addQuestionHandler = useCallback(() => {
+    const openModalHandler = useCallback(() => {
         setIsOpen(true)
     }, [])
 
@@ -25,12 +25,15 @@ const dispatch = useAppDispatch()
     return (
         <AppContainer padding="10px">
             <Block>
-                <BasicButton name="Добавить вопрос" onClick={addQuestionHandler} disabled={questionStatus === "Test"}/>
+                <BasicButton name="Добавить вопрос" onClick={openModalHandler} disabled={questionStatus === "Test"}/>
                 <BasicButton name="Начать тест" onClick={startTestHandler} disabled={questionStatus === "Test"}/>
             </Block>
             {
                 questionStatus === "Test"
-                && <Test/>
+                && <>
+                    <Test setIsOpenModal={openModalHandler}/>
+                    <CustomModal isOpen={isOpen} setIsOpen={setIsOpen} onlyMessage/>
+                </>
             }
             <CustomModal isOpen={isOpen} setIsOpen={setIsOpen}/>
         </AppContainer>

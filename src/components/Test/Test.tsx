@@ -1,11 +1,14 @@
-import React, {FC} from "react";
-import {useAppSelector} from "../../redux TK/store";
+import {FC} from "react";
 import {Question} from "./Question/Question";
-import {Block} from "../styled-components/common";
 import {BasicButton} from "../BasicButton/BasicButton";
+import {useTest} from "./Question/useTest";
+import {Block} from "../styled-components/Block/Block";
 
-export const Test: FC = () => {
-    const questions = useAppSelector(state => state.questions.questions)
+type TestPropsType = {
+    setIsOpenModal: () => void
+}
+export const Test: FC<TestPropsType> = ({setIsOpenModal}) => {
+    const {questions, endTestHandler} = useTest(setIsOpenModal)
     return (
         <Block flexDirection="column" alignItems="flex-start">
             {
@@ -14,9 +17,8 @@ export const Test: FC = () => {
                                                          questionNumber={index + 1}/>)
             }
             <Block>
-                <BasicButton name="Завершить тест" onClick={()=>{}}/>
+                <BasicButton name="Завершить тест" onClick={endTestHandler}/>
             </Block>
-
         </Block>
     )
 }
