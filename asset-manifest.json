@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/questions_app/static/js/main.220f31bf.js",
+    "index.html": "/questions_app/index.html",
+    "main.220f31bf.js.map": "/questions_app/static/js/main.220f31bf.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.220f31bf.js"
+  ]
+}
