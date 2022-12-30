@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from "../../../redux_TK/store";
-import {setMessage} from "../../../redux_TK/questionsSlice";
+import {changeStatus, setMessage} from "../../../redux_TK/questionsSlice";
 import {checkAnswers} from "../../../utils/checkAnswers";
 
 export const useTest = (setIsOpenModal:() => void) => {
@@ -7,24 +7,22 @@ export const useTest = (setIsOpenModal:() => void) => {
     const answers = useAppSelector(state => state.questions.userAnswers)
     const dispatch = useAppDispatch()
 
-    const rightAnswers = questions.map((elem, index) => ({[elem.id]: [...elem.rightAnswers]}))
+    const rightAnswers = questions.map((elem) => ({[elem.id]: [...elem.rightAnswers]}))
+    const questionsCount = questions.length
 
     const addMessage = (message: string) => {
         dispatch(setMessage(message))
     }
     const endTestHandler = () => {
-        const isPositive = checkAnswers(answers, rightAnswers)
-        switch (isPositive){
-            case null:
-            default:
-                addMessage("Все вопросы должны иметь хотя бы один выбранный вариант ответа. Проверьте правильность ввода")
-                break
-            case true:
-                addMessage("Вы правильно ответили на все вопросы")
-                break
-            case false:
-                addMessage("Вы допустили ошибку. Попробуйте ещё раз")
-                break
+        const result = checkAnswers(answers, rightAnswers)
+        if (!result){
+            addMessage("Все вопросы должны иметь хотя бы один выбранный вариант ответа. Проверьте правильность заполнения")
+            dispatch(changeStatus({status: "Test_error"}))
+        } else if (result.length === 0) {
+            addMessage(`Ваш результат ${questionsCount} из ${questionsCount}. Вы молодец!`)
+        } else {
+            const resultCount = result.length
+            addMessage(`Вы допустили ошибку в вопросах №: ${result.join(", ")}. Ваш результат ${questionsCount - resultCount} из ${questionsCount}.`)
         }
         setIsOpenModal()
     }

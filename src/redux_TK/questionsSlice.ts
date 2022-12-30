@@ -1,6 +1,6 @@
 import { createAction, createSlice, nanoid } from "@reduxjs/toolkit";
 
-export type StatusType = "Question_added" | "Answer_options_added" | "Editing_completed" | "Test" | null
+export type StatusType = "Question_added" | "Answer_options_added" | "Editing_completed" | "Test" | "Test_error" |null
 
 export type UserAnswerType = {
     [key: string]: boolean[]
@@ -22,10 +22,10 @@ export type StateType = {
 export const createQuestionTitle = createAction<string>("createQuestionTitle")
 export const createAnswerOptions = createAction<{answerOptions: string[], id: string}>("createAnswerOptions")
 export const createRightAnswers = createAction<{rightAnswers: boolean[], id: string}>("createRightAnswers")
-export const startTest = createAction("startTest")
-export const endTest = createAction("endTest")
+export const changeStatus = createAction<{status: StatusType}>("changeStatus")
 export const addUserAnswer = createAction<{id: string, answers: boolean[]}>("addUserAnswer")
 export const setMessage = createAction<string | null>("setMessage")
+export const deleteQuestion = createAction<{id: string}>("deleteQuestion")
 
 export const questionsSlice = createSlice({
     name: "questions",
@@ -72,16 +72,9 @@ export const questionsSlice = createSlice({
             }
         )
             .addCase(
-                startTest,
+                changeStatus,
                 (state, action) => {
-                    state.status = "Test"
-                    state.userAnswers = {}
-                }
-            )
-            .addCase(
-                endTest,
-                (state, action) => {
-                    state.status = null
+                    state.status = action.payload.status
                     state.userAnswers = {}
                 }
             )
@@ -95,6 +88,13 @@ export const questionsSlice = createSlice({
                 setMessage,
                 (state, action) => {
                     state.message = action.payload
+                }
+            )
+            .addCase(
+                deleteQuestion,
+                (state, action) => {
+                    state.questions = state.questions.filter(elem => elem.id !== action.payload.id)
+                    state.status = null
                 }
             )
 

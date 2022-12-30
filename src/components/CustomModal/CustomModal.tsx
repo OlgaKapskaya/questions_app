@@ -15,14 +15,13 @@ const customStyles = {
     },
 };
 
-
 type CustomModalPropsType = {
     isOpen: boolean
-    setIsOpen: (isOpen: boolean) => void
+    onClose: () => void
     onlyMessage?: boolean
 }
 
-export const CustomModal: FC<CustomModalPropsType> = ({isOpen, setIsOpen, onlyMessage}) => {
+export const CustomModal: FC<CustomModalPropsType> = ({isOpen, onClose, onlyMessage}) => {
     const {
         label,
         message,
@@ -30,7 +29,7 @@ export const CustomModal: FC<CustomModalPropsType> = ({isOpen, setIsOpen, onlyMe
         changeInputValueHandler,
         onSubmitHandler,
         onCloseModalHandler
-    } = useCustomModal(setIsOpen)
+    } = useCustomModal(onClose)
 
     return (
         <Modal isOpen={isOpen} style={customStyles} ariaHideApp={false}>

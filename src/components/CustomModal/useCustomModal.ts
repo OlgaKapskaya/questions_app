@@ -2,21 +2,20 @@ import {useAppDispatch, useAppSelector} from "../../redux_TK/store";
 import {ChangeEvent, useCallback, useEffect, useMemo, useState} from "react";
 import {COUNT_QUESTION_OPTIONS} from "../../utils/constants";
 import {
+    changeStatus,
     createAnswerOptions,
     createQuestionTitle,
-    createRightAnswers,
-    endTest,
+    createRightAnswers, deleteQuestion,
     setMessage
 } from "../../redux_TK/questionsSlice";
-import {convertArray} from "../../utils/convertArray";
+import {convertArrayOfNumberToBoolean} from "../../utils/convertArray";
 
-export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
+export const useCustomModal = (onClose: () => void) => {
 
     const dispatch = useAppDispatch()
     const questionStatus = useAppSelector(state => state.questions.status)
     const currentQuestionID = useAppSelector(state => state.questions.currentQuestionID)
     const message = useAppSelector(state => state.questions.message)
-
 
     const [values, setValues] = useState<string[]>([])
     const [inputValue, setInputValue] = useState<string>("")
@@ -28,13 +27,13 @@ export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
                 return "Введите текст вопроса"
             }
             case "Question_added":
-                return "Введите вариант ответа"
+                return `Введите ${values.length + 1} вариант ответа`
             case "Answer_options_added":
                 return "Введите номера правильных ответов через запятую"
             default:
                 return ""
         }
-    }, [questionStatus])
+    }, [questionStatus, values])
 
     useEffect(() => {
         if (values.length === COUNT_QUESTION_OPTIONS) {
@@ -54,7 +53,7 @@ export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
             setInputValue("")
             dispatch(setMessage(null))
         } else {
-            dispatch(setMessage("Вы не ввели текст вопроса! Попробуйте ещё раз."))
+            dispatch(setMessage("Вы не ввели текст вопроса. Попробуйте добавить вопрос заново."))
         }
     }
     const addQuestionOption = (value: string) => {
@@ -63,19 +62,19 @@ export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
             setInputValue("")
             dispatch(setMessage(null))
         } else {
-            dispatch(setMessage("Вы не ввели текст ответа! Попробуйте ещё раз."))
+            dispatch(setMessage(`Вы не ввели текст ${value.length + 1} варианта ответа! Попробуйте ещё раз.`))
         }
     }
     const addRightAnswers = (value: string) => {
         if (value) {
             const rightAnswersArray = value.split(",").map(elem => +elem - 1).sort()
             if (rightAnswersArray.length <= COUNT_QUESTION_OPTIONS) {
-                const rightAnswers = convertArray(rightAnswersArray)
+                const rightAnswers = convertArrayOfNumberToBoolean(rightAnswersArray)
                 if (rightAnswers){
                     dispatch(createRightAnswers({rightAnswers: rightAnswers, id: currentQuestionID}))
                     setInputValue("")
                     dispatch(setMessage(null))
-                    setIsOpen(false)
+                    onClose()
                 } else {
                     dispatch(setMessage("Некорректные данные. Попробуйте ещё раз."))
                 }
@@ -87,9 +86,16 @@ export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
         }
     }
     const onCloseModalHandler = () => {
-        setInputValue("")
-        dispatch(setMessage(null))
-        setIsOpen(false)
+        if (questionStatus === null){
+            setInputValue("")
+            dispatch(setMessage(null))
+        } else if (questionStatus === "Test_error"){
+            dispatch(changeStatus({status: "Test"}))
+        }
+        else {
+            dispatch(deleteQuestion({id: currentQuestionID}))
+        }
+        onClose()
     }
 
     const onSubmitHandler = () => {
@@ -107,8 +113,10 @@ export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
                 addRightAnswers(inputValue)
                 break
             }
-            case "Test": {
-                dispatch(endTest())
+            case "Test":
+            case "Test_error": {
+                dispatch(changeStatus({status: null}))
+                dispatch(setMessage(null))
                 onCloseModalHandler()
                 break
             }
@@ -116,8 +124,6 @@ export const useCustomModal = (setIsOpen: (isOpen: boolean) => void) => {
                 return
         }
     }
-
-
 
     return {label, message, inputValue, changeInputValueHandler, onSubmitHandler, onCloseModalHandler}
 }
