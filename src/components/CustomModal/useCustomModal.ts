@@ -4,11 +4,11 @@ import {COUNT_QUESTION_OPTIONS} from "../../utils/constants";
 import {
     changeStatus,
     createAnswerOptions,
-    createQuestionTitle,
+    createQuestion,
     createRightAnswers, deleteQuestion,
     setMessage
 } from "../../redux_TK/questionsSlice";
-import {convertArrayOfNumberToBoolean} from "../../utils/convertArray";
+import {validate} from "../../utils/validate";
 
 export const useCustomModal = (onClose: () => void) => {
 
@@ -49,7 +49,7 @@ export const useCustomModal = (onClose: () => void) => {
 
     const addQuestionTitle = (value: string) => {
         if (value) {
-            dispatch(createQuestionTitle(value))
+            dispatch(createQuestion(value))
             setInputValue("")
             dispatch(setMessage(null))
         } else {
@@ -67,17 +67,12 @@ export const useCustomModal = (onClose: () => void) => {
     }
     const addRightAnswers = (value: string) => {
         if (value) {
-            const rightAnswersArray = value.split(",").map(elem => +elem - 1).sort()
-            if (rightAnswersArray.length <= COUNT_QUESTION_OPTIONS) {
-                const rightAnswers = convertArrayOfNumberToBoolean(rightAnswersArray)
-                if (rightAnswers){
-                    dispatch(createRightAnswers({rightAnswers: rightAnswers, id: currentQuestionID}))
-                    setInputValue("")
-                    dispatch(setMessage(null))
-                    onClose()
-                } else {
-                    dispatch(setMessage("Некорректные данные. Попробуйте ещё раз."))
-                }
+            const rightAnswers = validate(value)
+            if (rightAnswers) {
+                dispatch(createRightAnswers({rightAnswers: rightAnswers, id: currentQuestionID}))
+                setInputValue("")
+                dispatch(setMessage(null))
+                onClose()
             } else {
                 dispatch(setMessage("Некорректные данные. Попробуйте ещё раз."))
             }
@@ -86,13 +81,12 @@ export const useCustomModal = (onClose: () => void) => {
         }
     }
     const onCloseModalHandler = () => {
-        if (questionStatus === null){
+        if (questionStatus === null) {
             setInputValue("")
             dispatch(setMessage(null))
-        } else if (questionStatus === "Test_error"){
+        } else if (questionStatus === "Test_error") {
             dispatch(changeStatus({status: "Test"}))
-        }
-        else {
+        } else {
             dispatch(deleteQuestion({id: currentQuestionID}))
         }
         onClose()

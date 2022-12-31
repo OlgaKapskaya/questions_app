@@ -19,7 +19,7 @@ export type StateType = {
     message: string | null
 }
 
-export const createQuestionTitle = createAction<string>("createQuestionTitle")
+export const createQuestion = createAction<string>("createQuestion")
 export const createAnswerOptions = createAction<{answerOptions: string[], id: string}>("createAnswerOptions")
 export const createRightAnswers = createAction<{rightAnswers: boolean[], id: string}>("createRightAnswers")
 export const changeStatus = createAction<{status: StatusType}>("changeStatus")
@@ -39,7 +39,7 @@ export const questionsSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(
-            createQuestionTitle,
+            createQuestion,
             (state: StateType, action) => {
                 const newQuestion: QuestionType = {
                     id: nanoid(),
@@ -75,7 +75,6 @@ export const questionsSlice = createSlice({
                 changeStatus,
                 (state, action) => {
                     state.status = action.payload.status
-                    state.userAnswers = {}
                 }
             )
             .addCase(

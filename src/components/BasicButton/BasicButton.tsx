@@ -25,7 +25,7 @@ const Button: any = styled.button<ButtonPropsType>`
   }
 `;
 
-type BasicButtonPropsType = ButtonPropsType & {
+type BasicButtonPropsType = {
     name: string
     onClick: () => void
     disabled?: boolean
