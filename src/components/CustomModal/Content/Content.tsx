@@ -21,7 +21,7 @@ export const Content: FC<ContentType> = ({message, onSubmit, label, inputValue, 
                     && <ErrorMessage>{message}</ErrorMessage>
                 }
                 <Block width="100%">
-                    <Input value={inputValue} onChange={changeInputValueHandler} autofocus/>
+                    <Input value={inputValue} onChange={changeInputValueHandler} autoFocus/>
                 </Block>
             </Block>
             <Block>

@@ -6,12 +6,11 @@ import {COUNT_QUESTION_OPTIONS} from "./constants";
  * @param value
  */
 export const validate = (value: string): boolean[] | null => {
-    const onValidate = /^[0-9][0-9,]{1,20}$/i.test(value)
+    const onValidate = /^(?:\d,?)+$/.test(value)
     if (onValidate) {
         const rightAnswersArray = convertStringToArrayOfIndex(value)
         if (rightAnswersArray.length <= COUNT_QUESTION_OPTIONS) {
-            const rightAnswers = convertArrayOfNumberToBoolean(rightAnswersArray)
-            return rightAnswers
+            return convertArrayOfNumberToBoolean(rightAnswersArray)
         } else return null
     } else return null
 }
